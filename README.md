@@ -7,3 +7,5 @@ A place to play with measure development and version control workflows. `.gitign
  - Create pull request into master from new branch.
  - Once pull request is merged, branch should be deleted.
  - Switch local checkout back to `master` and pull changes from GitHub.com 
+
+I am going to reject this pull request and delete this branch
