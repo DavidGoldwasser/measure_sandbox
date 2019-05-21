@@ -1,4 +1,5 @@
 .idea
+.rubocop*
 */tests/output
 test_results
 test
