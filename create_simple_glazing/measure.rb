@@ -122,17 +122,6 @@ class CreateSimpleGlazing < OpenStudio::Measure::ModelMeasure
     #construction.setName("New Simple Glazing Construction")
     #construction.insertLayer(0, window_mat)
 
-    # short def to make numbers pretty (converts 4125001.25641 to 4,125,001.26 or 4,125,001). The definition be called through this measure
-    def neat_numbers(number, roundto = 2) # round to 0 or 2)
-      if roundto == 2
-        number = format '%.2f', number
-      else
-        number = number.round
-      end
-      # regex to add commas
-      number.to_s.reverse.gsub(/([0-9]{3}(?=([0-9])))/, '\\1,').reverse
-    end
-
     # clone construction to get proper area for measure economics, in case it is used elsewhere in the building
     new_object = construction.clone(model)
     if !new_object.to_Construction.empty?
@@ -249,7 +238,7 @@ class CreateSimpleGlazing < OpenStudio::Measure::ModelMeasure
     end
 
     # need to format better. At first I did each do, but seems initial condition only reports the first one.
-    runner.registerFinalCondition("#{neat_numbers(const_area_ip, 0)} (ft^2) of existing windows of the types: #{const_names.join(', ')} were replaced by new #{construction.name} windows.")
+    runner.registerFinalCondition("#{OpenStudio.toNeatString(const_area_ip, 0, true)} (ft^2) of existing windows of the types: #{const_names.join(', ')} were replaced by new #{construction.name} windows.")
 
     return true
   end
