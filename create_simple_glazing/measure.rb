@@ -63,6 +63,7 @@ class CreateSimpleGlazing < OpenStudio::Measure::ModelMeasure
       end
     end
 
+    # todo - replace construction argument with comma separated strings
     # make a choice argument for fixed windows
     construction = OpenStudio::Measure::OSArgument.makeChoiceArgument('construction', construction_handles, construction_display_names, true)
     construction.setDisplayName('Pick a Window Construction From the Model to Replace Existing Window Constructions.')
@@ -80,54 +81,6 @@ class CreateSimpleGlazing < OpenStudio::Measure::ModelMeasure
     change_operable_windows.setDefaultValue(true)
     args << change_operable_windows
 
-    # make an argument to remove existing costs
-    remove_costs = OpenStudio::Measure::OSArgument.makeBoolArgument('remove_costs', true)
-    remove_costs.setDisplayName('Remove Existing Costs?')
-    remove_costs.setDefaultValue(true)
-    args << remove_costs
-
-    # make an argument for material and installation cost
-    material_cost_ip = OpenStudio::Measure::OSArgument.makeDoubleArgument('material_cost_ip', true)
-    material_cost_ip.setDisplayName('Material and Installation Costs for Construction per Area Used ($/ft^2).')
-    material_cost_ip.setDefaultValue(0.0)
-    args << material_cost_ip
-
-    # make an argument for demolition cost
-    demolition_cost_ip = OpenStudio::Measure::OSArgument.makeDoubleArgument('demolition_cost_ip', true)
-    demolition_cost_ip.setDisplayName('Demolition Costs for Construction per Area Used ($/ft^2).')
-    demolition_cost_ip.setDefaultValue(0.0)
-    args << demolition_cost_ip
-
-    # make an argument for duration in years until costs start
-    years_until_costs_start = OpenStudio::Measure::OSArgument.makeIntegerArgument('years_until_costs_start', true)
-    years_until_costs_start.setDisplayName('Years Until Costs Start (whole years).')
-    years_until_costs_start.setDefaultValue(0)
-    args << years_until_costs_start
-
-    # make an argument to determine if demolition costs should be included in initial construction
-    demo_cost_initial_const = OpenStudio::Measure::OSArgument.makeBoolArgument('demo_cost_initial_const', true)
-    demo_cost_initial_const.setDisplayName('Demolition Costs Occur During Initial Construction?')
-    demo_cost_initial_const.setDefaultValue(false)
-    args << demo_cost_initial_const
-
-    # make an argument for expected life
-    expected_life = OpenStudio::Measure::OSArgument.makeIntegerArgument('expected_life', true)
-    expected_life.setDisplayName('Expected Life (whole years).')
-    expected_life.setDefaultValue(20)
-    args << expected_life
-
-    # make an argument for o&m cost
-    om_cost_ip = OpenStudio::Measure::OSArgument.makeDoubleArgument('om_cost_ip', true)
-    om_cost_ip.setDisplayName('O & M Costs for Construction per Area Used ($/ft^2).')
-    om_cost_ip.setDefaultValue(0.0)
-    args << om_cost_ip
-
-    # make an argument for o&m frequency
-    om_frequency = OpenStudio::Measure::OSArgument.makeIntegerArgument('om_frequency', true)
-    om_frequency.setDisplayName('O & M Frequency (whole years).')
-    om_frequency.setDefaultValue(1)
-    args << om_frequency
-
     return args
   end
 
@@ -144,14 +97,6 @@ class CreateSimpleGlazing < OpenStudio::Measure::ModelMeasure
     construction = runner.getOptionalWorkspaceObjectChoiceValue('construction', user_arguments, model)
     change_fixed_windows = runner.getBoolArgumentValue('change_fixed_windows', user_arguments)
     change_operable_windows = runner.getBoolArgumentValue('change_operable_windows', user_arguments)
-    remove_costs = runner.getBoolArgumentValue('remove_costs', user_arguments)
-    material_cost_ip = runner.getDoubleArgumentValue('material_cost_ip', user_arguments)
-    demolition_cost_ip = runner.getDoubleArgumentValue('demolition_cost_ip', user_arguments)
-    years_until_costs_start = runner.getIntegerArgumentValue('years_until_costs_start', user_arguments)
-    demo_cost_initial_const = runner.getBoolArgumentValue('demo_cost_initial_const', user_arguments)
-    expected_life = runner.getIntegerArgumentValue('expected_life', user_arguments)
-    om_cost_ip = runner.getDoubleArgumentValue('om_cost_ip', user_arguments)
-    om_frequency = runner.getIntegerArgumentValue('om_frequency', user_arguments)
 
     # check the construction for reasonableness
     if construction.empty?
@@ -171,31 +116,11 @@ class CreateSimpleGlazing < OpenStudio::Measure::ModelMeasure
       end
     end
 
-    # set flags and counters to use later
-    costs_requested = false
-    costs_removed = false
-
-    # Later will add hard sized $ cost to this each time I swap a construction surfaces.
-    # If demo_cost_initial_const is true then will be applied once in the lifecycle. Future replacements use the demo cost of the new construction.
-    demo_costs_of_baseline_objects = 0
-
-    # check costs for reasonableness
-    if material_cost_ip.abs + demolition_cost_ip.abs + om_cost_ip.abs == 0
-      runner.registerInfo("No costs were requested for #{construction.name}.")
-    else
-      costs_requested = true
-    end
-
-    # check lifecycle arguments for reasonableness
-    if (years_until_costs_start < 0) && (years_until_costs_start > expected_life)
-      runner.registerError('Years until costs start should be a non-negative integer less than Expected Life.')
-    end
-    if (expected_life < 1) && (expected_life > 100)
-      runner.registerError('Choose an integer greater than 0 and less than or equal to 100 for Expected Life.')
-    end
-    if om_frequency < 1
-      runner.registerError('Choose an integer greater than 0 for O & M Frequency.')
-    end
+    # todo - make a new construction and simple glazing instead of pulling in 
+    #window_mat = OpenStudio::Model::SimpleGlazing.new(model)
+    #construction = OpenStudio::Model::Construction.new(model)
+    #construction.setName("New Simple Glazing Construction")
+    #construction.insertLayer(0, window_mat)
 
     # short def to make numbers pretty (converts 4125001.25641 to 4,125,001.26 or 4,125,001). The definition be called through this measure
     def neat_numbers(number, roundto = 2) # round to 0 or 2)
@@ -212,32 +137,6 @@ class CreateSimpleGlazing < OpenStudio::Measure::ModelMeasure
     new_object = construction.clone(model)
     if !new_object.to_Construction.empty?
       construction = new_object.to_Construction.get
-    end
-
-    # remove any component cost line items associated with the construction.
-    if !construction.lifeCycleCosts.empty? && (remove_costs == true)
-      runner.registerInfo("Removing existing lifecycle cost objects associated with #{construction.name}")
-      removed_costs = construction.removeLifeCycleCosts
-      costs_removed = !removed_costs.empty?
-    end
-
-    removed_costs = construction.removeLifeCycleCosts
-    costs_removed = !removed_costs.empty?
-
-    # add lifeCycleCost objects if there is a non-zero value in one of the cost arguments
-    if costs_requested == true
-
-      # converting doubles to si values from ip
-      material_cost_si = OpenStudio.convert(OpenStudio::Quantity.new(material_cost_ip, OpenStudio.createUnit('1/ft^2').get), OpenStudio.createUnit('1/m^2').get).get.value
-      demolition_cost_si = OpenStudio.convert(OpenStudio::Quantity.new(demolition_cost_ip, OpenStudio.createUnit('1/ft^2').get), OpenStudio.createUnit('1/m^2').get).get.value
-      om_cost_si = OpenStudio.convert(OpenStudio::Quantity.new(om_cost_ip, OpenStudio.createUnit('1/ft^2').get), OpenStudio.createUnit('1/m^2').get).get.value
-
-      # adding new cost items
-      lcc_mat = OpenStudio::Model::LifeCycleCost.createLifeCycleCost("LCC_Mat-#{construction.name}", construction, material_cost_si, 'CostPerArea', 'Construction', expected_life, years_until_costs_start)
-      # if demo_cost_initial_const is true then later will add one time demo costs using removed baseline objects. Cost will occur at year specified by years_until_costs_start
-      lcc_demo = OpenStudio::Model::LifeCycleCost.createLifeCycleCost("LCC_Demo-#{construction.name}", construction, demolition_cost_si, 'CostPerArea', 'Salvage', expected_life, years_until_costs_start + expected_life)
-      lcc_om = OpenStudio::Model::LifeCycleCost.createLifeCycleCost("LCC_OM-#{construction.name}", construction, om_cost_si, 'CostPerArea', 'Maintenance', om_frequency, 0)
-
     end
 
     # loop through sub surfaces
@@ -268,25 +167,6 @@ class CreateSimpleGlazing < OpenStudio::Measure::ModelMeasure
       end
     end
 
-    # create array of constructions for sub_surfaces to change, before construction is replaced
-    constructions_to_change = []
-    sub_surfaces_to_change.each do |sub_surface|
-      if !sub_surface.construction.empty?
-        constructions_to_change << sub_surface.construction.get
-      end
-    end
-
-    # getting cost of all existing windows before constructions are swapped. This will create demo cost if all windows were removed. Will adjust later for windows left in place
-    constructions_to_change.uniq.each do |construction_to_change|
-      # loop through lifecycle costs getting total costs under "Salvage" category
-      demo_LCCs = construction_to_change.lifeCycleCosts
-      demo_LCCs.each do |demo_LCC|
-        if demo_LCC.category == 'Salvage'
-          demo_costs_of_baseline_objects += demo_LCC.totalCost
-        end
-      end
-    end
-
     if (change_fixed_windows == false) && (change_operable_windows == false)
       runner.registerAsNotApplicable('Fixed and operable windows are both set not to change.')
       return true # no need to waste time with the measure if we know it isn't applicable
@@ -297,6 +177,14 @@ class CreateSimpleGlazing < OpenStudio::Measure::ModelMeasure
 
     # report initial condition
     runner.registerInitialCondition("The building had #{starting_exterior_windows_constructions.uniq.size} window constructions: #{starting_exterior_windows_constructions.uniq.sort.join(', ')}.")
+
+    # create array of constructions for sub_surfaces to change, before construction is replaced
+    constructions_to_change = []
+    sub_surfaces_to_change.each do |sub_surface|
+      if !sub_surface.construction.empty?
+        constructions_to_change << sub_surface.construction.get
+      end
+    end
 
     # loop through construction sets used in the model
     default_construction_sets = model.getDefaultConstructionSets
@@ -349,39 +237,6 @@ class CreateSimpleGlazing < OpenStudio::Measure::ModelMeasure
       end
     end
 
-    # loop through lifecycle costs getting total costs under "Salvage" category
-    constructions_to_change.uniq.each do |construction_to_change|
-      demo_LCCs = construction_to_change.lifeCycleCosts
-      demo_LCCs.each do |demo_LCC|
-        if demo_LCC.category == 'Salvage'
-          demo_costs_of_baseline_objects += demo_LCC.totalCost * -1 # this is to adjust demo cost down for original windows that were not changed
-        end
-      end
-    end
-
-    # loop through lifecycle costs getting total costs under "Construction" or "Salvage" category and add to counter if occurs during year 0
-    const_LCCs = construction.lifeCycleCosts
-    yr0_capital_totalCosts = 0
-    const_LCCs.each do |const_LCC|
-      if (const_LCC.category == 'Construction') || (const_LCC.category == 'Salvage')
-        if const_LCC.yearsFromStart == 0
-          yr0_capital_totalCosts += const_LCC.totalCost
-        end
-      end
-    end
-
-    # add one time demo cost of removed windows if appropriate
-    if demo_cost_initial_const == true
-      building = model.getBuilding
-      lcc_baseline_demo = OpenStudio::Model::LifeCycleCost.createLifeCycleCost('LCC_baseline_demo', building, demo_costs_of_baseline_objects, 'CostPerEach', 'Salvage', 0, years_until_costs_start).get # using 0 for repeat period since one time cost.
-      runner.registerInfo("Adding one time cost of $#{neat_numbers(lcc_baseline_demo.totalCost, 0)} related to demolition of baseline objects.")
-
-      # if demo occurs on year 0 then add to initial capital cost counter
-      if lcc_baseline_demo.yearsFromStart == 0
-        yr0_capital_totalCosts += lcc_baseline_demo.totalCost
-      end
-    end
-
     # ip construction area for reporting
     const_area_ip = OpenStudio.convert(OpenStudio::Quantity.new(construction.getNetArea, OpenStudio.createUnit('m^2').get), OpenStudio.createUnit('ft^2').get).get.value
 
@@ -394,7 +249,7 @@ class CreateSimpleGlazing < OpenStudio::Measure::ModelMeasure
     end
 
     # need to format better. At first I did each do, but seems initial condition only reports the first one.
-    runner.registerFinalCondition("#{neat_numbers(const_area_ip, 0)} (ft^2) of existing windows of the types: #{const_names.join(', ')} were replaced by new #{construction.name} windows. Initial capital costs associated with the new windows are $#{neat_numbers(yr0_capital_totalCosts, 0)}.")
+    runner.registerFinalCondition("#{neat_numbers(const_area_ip, 0)} (ft^2) of existing windows of the types: #{const_names.join(', ')} were replaced by new #{construction.name} windows.")
 
     return true
   end

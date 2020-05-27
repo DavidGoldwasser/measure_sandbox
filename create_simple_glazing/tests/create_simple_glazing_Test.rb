@@ -79,38 +79,6 @@ class CreateSimpleGlazing_Test < Minitest::Test
     assert(change_operable_windows.setValue(false))
     argument_map['change_operable_windows'] = change_operable_windows
 
-    remove_costs = arguments[count += 1].clone
-    assert(remove_costs.setValue(true))
-    argument_map['remove_costs'] = remove_costs
-
-    material_cost_ip = arguments[count += 1].clone
-    assert(material_cost_ip.setValue(5.0))
-    argument_map['material_cost_ip'] = material_cost_ip
-
-    demolition_cost_ip = arguments[count += 1].clone
-    assert(demolition_cost_ip.setValue(1.0))
-    argument_map['demolition_cost_ip'] = demolition_cost_ip
-
-    years_until_costs_start = arguments[count += 1].clone
-    assert(years_until_costs_start.setValue(0))
-    argument_map['years_until_costs_start'] = years_until_costs_start
-
-    demo_cost_initial_const = arguments[count += 1].clone
-    assert(demo_cost_initial_const.setValue(false))
-    argument_map['demo_cost_initial_const'] = demo_cost_initial_const
-
-    expected_life = arguments[count += 1].clone
-    assert(expected_life.setValue(20))
-    argument_map['expected_life'] = expected_life
-
-    om_cost_ip = arguments[count += 1].clone
-    assert(om_cost_ip.setValue(0.25))
-    argument_map['om_cost_ip'] = om_cost_ip
-
-    om_frequency = arguments[count += 1].clone
-    assert(om_frequency.setValue(1))
-    argument_map['om_frequency'] = om_frequency
-
     measure.run(model, runner, argument_map)
     result = runner.result
     show_output(result)
