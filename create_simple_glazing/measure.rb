@@ -43,31 +43,15 @@ class CreateSimpleGlazing < OpenStudio::Measure::ModelMeasure
   def arguments(model)
     args = OpenStudio::Measure::OSArgumentVector.new
 
-    # make a choice argument for constructions that are appropriate for windows
-    construction_handles = OpenStudio::StringVector.new
-    construction_display_names = OpenStudio::StringVector.new
-
-    # putting space types and names into hash
-    construction_args = model.getConstructions
-    construction_args_hash = {}
-    construction_args.each do |construction_arg|
-      construction_args_hash[construction_arg.name.to_s] = construction_arg
-    end
-
-    # looping through sorted hash of constructions
-    construction_args_hash.sort.map do |key, value|
-      # only include if construction is a valid fenestration construction
-      if value.isFenestration
-        construction_handles << value.handle.to_s
-        construction_display_names << key
-      end
-    end
-
-    # todo - replace construction argument with comma separated strings
-    # make a choice argument for fixed windows
-    construction = OpenStudio::Measure::OSArgument.makeChoiceArgument('construction', construction_handles, construction_display_names, true)
-    construction.setDisplayName('Pick a Window Construction From the Model to Replace Existing Window Constructions.')
-    args << construction
+    # make choice argument for facade
+    choices = OpenStudio::StringVector.new
+    choices << '6.456,0.812,0.84' # store the name of the real product
+    choices << '6.456,0.812,0.83'
+    choices << '6.456,0.812,0.82'
+    simple_glazing = OpenStudio::Measure::OSArgument.makeChoiceArgument('simple_glazing', choices, true)
+    simple_glazing.setDisplayName('Commma separated UFactor,SHGC, Visible Transmittance.')
+    simple_glazing.setDefaultValue('6.456,0.812,0.84')
+    args << simple_glazing
 
     # make a bool argument for fixed windows
     change_fixed_windows = OpenStudio::Measure::OSArgument.makeBoolArgument('change_fixed_windows', true)
@@ -94,33 +78,24 @@ class CreateSimpleGlazing < OpenStudio::Measure::ModelMeasure
     end
 
     # assign the user inputs to variables
-    construction = runner.getOptionalWorkspaceObjectChoiceValue('construction', user_arguments, model)
+    simple_glazing = runner.getStringArgumentValue('simple_glazing', user_arguments)
     change_fixed_windows = runner.getBoolArgumentValue('change_fixed_windows', user_arguments)
     change_operable_windows = runner.getBoolArgumentValue('change_operable_windows', user_arguments)
 
-    # check the construction for reasonableness
-    if construction.empty?
-      handle = runner.getStringArgumentValue('construction', user_arguments)
-      if handle.empty?
-        runner.registerError('No construction was chosen.')
-      else
-        runner.registerError("The selected construction with handle '#{handle}' was not found in the model. It may have been removed by another measure.")
-      end
-      return false
-    else
-      if !construction.get.to_Construction.empty?
-        construction = construction.get.to_Construction.get
-      else
-        runner.registerError('Script Error - argument not showing up as construction.')
-        return false
-      end
-    end
+    # split simple_glazing string into doubles
+    simple_glazing_inputs = simple_glazing.split(',')
 
     # todo - make a new construction and simple glazing instead of pulling in 
-    #window_mat = OpenStudio::Model::SimpleGlazing.new(model)
-    #construction = OpenStudio::Model::Construction.new(model)
-    #construction.setName("New Simple Glazing Construction")
-    #construction.insertLayer(0, window_mat)
+    window_mat = OpenStudio::Model::SimpleGlazing.new(model)
+    window_mat.setUFactor(simple_glazing_inputs[0].to_f)
+    window_mat.setSolarHeatGainCoefficient(simple_glazing_inputs[1].to_f)
+    window_mat.setVisibleTransmittance(simple_glazing_inputs[2].to_f)
+    runner.registerInfo("Ufactor is #{window_mat.uFactor}")
+    runner.registerInfo("SHGC is #{window_mat.solarHeatGainCoefficient}")
+    runner.registerInfo("Visible Transmittance is #{window_mat.visibleTransmittance}")
+    construction = OpenStudio::Model::Construction.new(model)
+    construction.setName("New Simple Glazing Construction")
+    construction.insertLayer(0, window_mat)
 
     # clone construction to get proper area for measure economics, in case it is used elsewhere in the building
     new_object = construction.clone(model)

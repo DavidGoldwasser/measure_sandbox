@@ -59,17 +59,15 @@ class CreateSimpleGlazing_Test < Minitest::Test
 
     # get arguments and test that they are what we are expecting
     arguments = measure.arguments(model)
-    assert_equal('construction', arguments[0].name)
-    assert(!arguments[0].hasDefaultValue)
 
     # set argument values to good values and run the measure on model with spaces
     argument_map = OpenStudio::Measure.convertOSArgumentVectorToMap(arguments)
 
     count = -1
 
-    construction = arguments[count += 1].clone
-    assert(construction.setValue('000_Exterior Window'))
-    argument_map['construction'] = construction
+    simple_glazing = arguments[count += 1].clone
+    assert(simple_glazing.setValue('6.456,0.812,0.84'))
+    argument_map['simple_glazing'] = simple_glazing
 
     change_fixed_windows = arguments[count += 1].clone
     assert(change_fixed_windows.setValue(true))

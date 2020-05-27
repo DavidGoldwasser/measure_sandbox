@@ -3,8 +3,8 @@
   <schema_version>3.0</schema_version>
   <name>create_simple_glazing</name>
   <uid>a51e705d-08cb-4bca-af0a-a7c34578e39f</uid>
-  <version_id>56bf0c83-172f-49a6-a353-895dd7f12e3f</version_id>
-  <version_modified>20200527T192125Z</version_modified>
+  <version_id>a94620b1-43a2-4346-8148-ce50ec27deda</version_id>
+  <version_modified>20200527T204004Z</version_modified>
   <xml_checksum>7308DE72</xml_checksum>
   <class_name>CreateSimpleGlazing</class_name>
   <display_name>Create_Simple_Glazing</display_name>
@@ -12,11 +12,26 @@
   <modeler_description>To support easier parametric analysis want to keep UFactor, Visible Transmittance, and SHGC tied together in a single argument, instead of being separate arguments. This is accomplished by accepting a comma separated string that contains three double values.</modeler_description>
   <arguments>
     <argument>
-      <name>construction</name>
-      <display_name>Pick a Window Construction From the Model to Replace Existing Window Constructions.</display_name>
+      <name>simple_glazing</name>
+      <display_name>Commma separated UFactor,SHGC, Visible Transmittance.</display_name>
       <type>Choice</type>
       <required>true</required>
       <model_dependent>false</model_dependent>
+      <default_value>6.456,0.812,0.84</default_value>
+      <choices>
+        <choice>
+          <value>6.456,0.812,0.84</value>
+          <display_name>6.456,0.812,0.84</display_name>
+        </choice>
+        <choice>
+          <value>6.456,0.812,0.83</value>
+          <display_name>6.456,0.812,0.83</display_name>
+        </choice>
+        <choice>
+          <value>6.456,0.812,0.82</value>
+          <display_name>6.456,0.812,0.82</display_name>
+        </choice>
+      </choices>
     </argument>
     <argument>
       <name>change_fixed_windows</name>
@@ -53,90 +68,6 @@
           <display_name>false</display_name>
         </choice>
       </choices>
-    </argument>
-    <argument>
-      <name>remove_costs</name>
-      <display_name>Remove Existing Costs?</display_name>
-      <type>Boolean</type>
-      <required>true</required>
-      <model_dependent>false</model_dependent>
-      <default_value>true</default_value>
-      <choices>
-        <choice>
-          <value>true</value>
-          <display_name>true</display_name>
-        </choice>
-        <choice>
-          <value>false</value>
-          <display_name>false</display_name>
-        </choice>
-      </choices>
-    </argument>
-    <argument>
-      <name>material_cost_ip</name>
-      <display_name>Material and Installation Costs for Construction per Area Used ($/ft^2).</display_name>
-      <type>Double</type>
-      <required>true</required>
-      <model_dependent>false</model_dependent>
-      <default_value>0</default_value>
-    </argument>
-    <argument>
-      <name>demolition_cost_ip</name>
-      <display_name>Demolition Costs for Construction per Area Used ($/ft^2).</display_name>
-      <type>Double</type>
-      <required>true</required>
-      <model_dependent>false</model_dependent>
-      <default_value>0</default_value>
-    </argument>
-    <argument>
-      <name>years_until_costs_start</name>
-      <display_name>Years Until Costs Start (whole years).</display_name>
-      <type>Integer</type>
-      <required>true</required>
-      <model_dependent>false</model_dependent>
-      <default_value>0</default_value>
-    </argument>
-    <argument>
-      <name>demo_cost_initial_const</name>
-      <display_name>Demolition Costs Occur During Initial Construction?</display_name>
-      <type>Boolean</type>
-      <required>true</required>
-      <model_dependent>false</model_dependent>
-      <default_value>false</default_value>
-      <choices>
-        <choice>
-          <value>true</value>
-          <display_name>true</display_name>
-        </choice>
-        <choice>
-          <value>false</value>
-          <display_name>false</display_name>
-        </choice>
-      </choices>
-    </argument>
-    <argument>
-      <name>expected_life</name>
-      <display_name>Expected Life (whole years).</display_name>
-      <type>Integer</type>
-      <required>true</required>
-      <model_dependent>false</model_dependent>
-      <default_value>20</default_value>
-    </argument>
-    <argument>
-      <name>om_cost_ip</name>
-      <display_name>O &amp; M Costs for Construction per Area Used ($/ft^2).</display_name>
-      <type>Double</type>
-      <required>true</required>
-      <model_dependent>false</model_dependent>
-      <default_value>0</default_value>
-    </argument>
-    <argument>
-      <name>om_frequency</name>
-      <display_name>O &amp; M Frequency (whole years).</display_name>
-      <type>Integer</type>
-      <required>true</required>
-      <model_dependent>false</model_dependent>
-      <default_value>1</default_value>
     </argument>
   </arguments>
   <outputs />
@@ -194,19 +125,19 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>60F3720F</checksum>
-    </file>
-    <file>
-      <filename>README.md</filename>
-      <filetype>md</filetype>
-      <usage_type>readme</usage_type>
-      <checksum>8F6A4D34</checksum>
+      <checksum>59CF0696</checksum>
     </file>
     <file>
       <filename>create_simple_glazing_Test.rb</filename>
       <filetype>rb</filetype>
       <usage_type>test</usage_type>
-      <checksum>4CA22465</checksum>
+      <checksum>065F500B</checksum>
+    </file>
+    <file>
+      <filename>README.md</filename>
+      <filetype>md</filetype>
+      <usage_type>readme</usage_type>
+      <checksum>E36CDCF7</checksum>
     </file>
   </files>
 </measure>
