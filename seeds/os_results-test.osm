@@ -13062,6 +13062,6 @@ OS:WeatherFile,
   -104.75,                                !- Longitude {deg}
   -7,                                     !- Time Zone {hr}
   1726,                                   !- Elevation {m}
-  USA_CO_Aurora-Buckley.Field.ANGB.724695_TMY3.epw, !- Url
+  USA_CA_Chula.Vista-Brown.Field.Muni.AP.722904_TMY3.epw, !- Url
   6108D70C;                               !- Checksum
 
