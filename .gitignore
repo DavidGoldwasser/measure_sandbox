@@ -3,3 +3,5 @@
 */tests/output
 test_results
 test
+**/run
+out.osw
