@@ -5,11 +5,11 @@ OS:Version,
 
 OS:Site,
   {26c1d3d2-1255-4c30-b0f3-21a67fc3b32f}, !- Handle
-  Aurora Buckley Field Angb,              !- Name
-  39.72,                                  !- Latitude {deg}
-  -104.75,                                !- Longitude {deg}
-  -7,                                     !- Time Zone {hr}
-  1726,                                   !- Elevation {m}
+  Chula Vista Brown Field Naas,           !- Name
+  32.58,                                  !- Latitude {deg}
+  -116.98,                                !- Longitude {deg}
+  -8,                                     !- Time Zone {hr}
+  159,                                    !- Elevation {m}
   ;                                       !- Terrain
 
 OS:YearDescription,
@@ -1350,7 +1350,7 @@ OS:Space,
   ,                                       !- Y Origin {m}
   ,                                       !- Z Origin {m}
   {04231d6c-1f8f-4585-97a0-e9584420959c}, !- Building Story Name
-  ,                                       !- Thermal Zone Name
+  {68e9142d-2a2e-4839-a011-93df7c235ee3}, !- Thermal Zone Name
   ,                                       !- Part of Total Floor Area
   ,                                       !- Design Specification Outdoor Air Object Name
   ;                                       !- Building Unit Name
@@ -13052,16 +13052,16 @@ OS:ZoneCapacitanceMultiplier:ResearchSpecial,
   ;                                       !- Carbon Dioxide Capacity Multiplier
 
 OS:WeatherFile,
-  {6084b7f5-cd01-4f51-954b-5aa2e8e395c0}, !- Handle
-  Aurora Buckley Field Angb,              !- City
-  CO,                                     !- State Province Region
+  {880668b5-c850-4862-ae6e-34ade831a182}, !- Handle
+  Chula Vista Brown Field Naas,           !- City
+  CA,                                     !- State Province Region
   USA,                                    !- Country
   TMY3,                                   !- Data Source
-  724695,                                 !- WMO Number
-  39.72,                                  !- Latitude {deg}
-  -104.75,                                !- Longitude {deg}
-  -7,                                     !- Time Zone {hr}
-  1726,                                   !- Elevation {m}
+  722904,                                 !- WMO Number
+  32.58,                                  !- Latitude {deg}
+  -116.98,                                !- Longitude {deg}
+  -8,                                     !- Time Zone {hr}
+  159,                                    !- Elevation {m}
   USA_CA_Chula.Vista-Brown.Field.Muni.AP.722904_TMY3.epw, !- Url
-  6108D70C;                               !- Checksum
+  27C50816;                               !- Checksum
 
