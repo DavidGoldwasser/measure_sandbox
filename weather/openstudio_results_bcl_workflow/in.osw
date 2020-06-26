@@ -1,0 +1,19 @@
+{
+  "seed_file": "os_results-test.osm",
+  "weather_file": "USA_CA_Chula.Vista-Brown.Field.Muni.AP.722904_TMY3.epw",
+  "file_paths": [
+    "../../seeds",
+    "../../weather"
+  ],
+  "measure_paths": [
+    "../../measures",
+  ],
+  "steps": [
+    {
+      "arguments": {
+        "zone_condition_section": false
+      },
+      "measure_dir_name": "openstudio_results_bcl"
+    }
+  ]
+}
