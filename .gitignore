@@ -1,5 +1,6 @@
 .idea
 .rubocop*
+.DS_Store
 */tests/output
 test_results
 test
